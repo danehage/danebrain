@@ -59,6 +59,22 @@ object Routes {
         return out
     }
 
+    /** The table used when a vault has no routes file: everything goes to one inbox folder. */
+    fun inboxOnly(folder: String): List<Route> = listOf(
+        Route(
+            key = "inbox",
+            folder = folder.trim().trim('/').ifEmpty { VaultLayout.DEFAULT_INBOX },
+            type = "note",
+            status = "inbox",
+            tags = emptyList(),
+            whenText = "everything",
+            format = FORMAT_NOTE,
+            datePrefix = true,
+            hub = null,
+            hubReason = null,
+        )
+    )
+
     /** The fallback route: "inbox" when present, otherwise the first entry. */
     fun default(routes: List<Route>): Route =
         routes.firstOrNull { it.key == "inbox" } ?: routes.first()

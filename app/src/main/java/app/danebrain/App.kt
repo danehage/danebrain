@@ -15,6 +15,7 @@ import app.danebrain.chat.ChatEngine
 import app.danebrain.core.NoteDraft
 import app.danebrain.core.Route
 import app.danebrain.core.Routes
+import app.danebrain.core.VaultLayout
 import app.danebrain.core.VaultWriter
 import app.danebrain.data.CaptureRepo
 import app.danebrain.data.Db
@@ -41,7 +42,9 @@ enum class Tab(val label: String, val icon: ImageVector) {
 data class ChatMsg(val fromUser: Boolean, val text: String, val isError: Boolean = false)
 
 /** Screen state that should survive tab switches and configuration changes. */
-class UiState(initialDraft: String, initialTheme: String) {
+class UiState(initialDraft: String, initialTheme: String, needsSetup: Boolean) {
+    /** True while the first-run setup is showing. */
+    var setup by mutableStateOf(needsSetup)
     /** Light, dark or follow the phone; see [Settings.themeMode]. */
     var themeMode by mutableStateOf(initialTheme)
     var tab by mutableStateOf(Tab.Capture)
@@ -69,9 +72,13 @@ class App : Application() {
     /** The filing destinations in use: the vault's own table when it has one, else the bundled sample. */
     var routes by mutableStateOf(emptyList<Route>())
         private set
+    /** True when the vault has its own routes file. */
+    var hasRoutesFile by mutableStateOf(false)
+        private set
     /** One line for Settings saying where [routes] came from. */
     var routesSource by mutableStateOf("")
         private set
+    lateinit var api: OpenRouter
     lateinit var analyzer: Analyzer
     lateinit var chatEngine: ChatEngine
     lateinit var ui: UiState
@@ -86,31 +93,36 @@ class App : Application() {
         index = SearchIndex(db)
         vault = Vault(settings)
         loadRoutes()
-        val api = OpenRouter { settings.apiKey }
+        api = OpenRouter({ settings.apiKey }, { settings.apiBaseUrl })
         analyzer = Analyzer(api, { routes }) { settings.visionModel }
         chatEngine = ChatEngine(api, settings, vault, index)
-        ui = UiState(settings.draft, settings.themeMode)
+        ui = UiState(settings.draft, settings.themeMode, needsSetup = !settings.setupDone)
     }
 
     /**
-     * Loads the route table. A `danebrain-routes.json` at the top of the vault replaces the bundled
-     * sample, so the folders someone files into are their own data, not part of the app.
+     * Loads the route table. A routes file at the top of the vault is used when present, so the
+     * folders someone files into are their own data. Without one, everything goes to one inbox
+     * folder, so the app never invents a folder structure in a vault it does not know.
      */
     fun loadRoutes() {
-        val bundled = Routes.parse(assets.open("routes.json").bufferedReader().use { it.readText() })
-        val file = vault.root?.takeIf { vault.problem() == null }?.let { File(it, ROUTES_FILE) }
-        if (file == null || !file.isFile) {
-            routes = bundled
-            routesSource = "Built-in sample (${bundled.size} routes). Add $ROUTES_FILE to the vault to use your own."
+        val file = vault.routesFile?.takeIf { vault.problem() == null }
+        if (settings.inboxFolder.isBlank() && vault.problem() == null) {
+            settings.inboxFolder = VaultLayout.guessInbox(vault.topFolders()) ?: VaultLayout.DEFAULT_INBOX
+        }
+        val inboxOnly = Routes.inboxOnly(settings.inboxFolder)
+        hasRoutesFile = file != null && file.isFile
+        if (!hasRoutesFile) {
+            routes = inboxOnly
+            routesSource = "Everything is filed into ${inboxOnly.first().folder}."
             return
         }
         try {
-            val own = Routes.parse(file.readText())
+            val own = Routes.parse(file!!.readText())
             routes = own
-            routesSource = "$ROUTES_FILE in the vault (${own.size} routes)"
+            routesSource = "${Vault.ROUTES_FILE} in the vault (${own.size} routes)"
         } catch (e: Exception) {
-            routes = bundled
-            routesSource = "$ROUTES_FILE could not be read (${e.message}). Using the built-in sample."
+            routes = inboxOnly
+            routesSource = "${Vault.ROUTES_FILE} could not be read (${e.message}). Filing into ${inboxOnly.first().folder} for now."
         }
     }
 
@@ -135,15 +147,11 @@ class App : Application() {
         }
     }
 
-    companion object {
-        const val ROUTES_FILE = "danebrain-routes.json"
-    }
-
     /** Writes a reviewed note and its page images into the vault. Call off the main thread. */
     fun writeToVault(draft: NoteDraft, pages: List<File>): VaultWriter.Result {
         vault.problem()?.let { throw IOException(it) }
         val root = vault.root ?: throw IOException("No vault folder chosen")
-        val result = VaultWriter(root).write(draft, pages) { stem -> index.stemExists(stem) }
+        val result = VaultWriter(root, "${vault.attachmentRoot()}/scans").write(draft, pages) { stem -> index.stemExists(stem) }
         vault.recordWrite(result.notePath)
         ui.syncTick++
         return result

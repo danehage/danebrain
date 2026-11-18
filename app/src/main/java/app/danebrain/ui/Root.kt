@@ -126,7 +126,9 @@ fun Root(app: App) {
 
         val reviewId = ui.reviewId
         val listening = dictation.listening
-        BackHandler(enabled = listening || reviewId != null || ui.writing || ui.tab != Tab.Capture) {
+        // Setup can be left with Back only once it has been finished at least once.
+        BackHandler(enabled = ui.setup && app.settings.setupDone) { ui.setup = false }
+        BackHandler(enabled = !ui.setup && (listening || reviewId != null || ui.writing || ui.tab != Tab.Capture)) {
             when {
                 dictation.listening -> dictation.stop()
                 ui.reviewId != null -> ui.reviewId = null
@@ -139,7 +141,7 @@ fun Root(app: App) {
             modifier = Modifier.imePadding(),
             containerColor = MaterialTheme.colorScheme.background,
             bottomBar = {
-                if (!listening && reviewId == null && !ui.writing) {
+                if (!ui.setup && !listening && reviewId == null && !ui.writing) {
                     BottomBar(selected = ui.tab, onTab = { ui.tab = it }, onMic = toggleDictation)
                 }
             },
@@ -151,6 +153,7 @@ fun Root(app: App) {
                     .consumeWindowInsets(padding)
             ) {
                 when {
+                    ui.setup -> SetupScreen(app)
                     listening -> ListeningScreen(dictation, text = ui.draft, onStop = { dictation.stop() })
                     reviewId != null -> ReviewScreen(app, reviewId)
                     ui.writing -> WriteScreen(app, onDictate = toggleDictation)

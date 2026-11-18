@@ -6,7 +6,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Environment
 import android.widget.Toast
+import android.provider.DocumentsContract
+import app.danebrain.core.Routes
 import app.danebrain.core.SyncLog
+import app.danebrain.core.VaultLayout
 import java.io.File
 import java.io.IOException
 
@@ -44,6 +47,42 @@ class Vault(private val settings: Settings) {
         }
         visit(base, 3)
         return found
+    }
+
+    /** Visible top-level folders of the vault, sorted by name. */
+    fun topFolders(): List<String> =
+        root?.listFiles().orEmpty().filter { it.isDirectory && !it.name.startsWith(".") }.map { it.name }.sorted()
+
+    /** Folder scans are kept under: Obsidian's attachment folder, or the nearest thing the vault has. */
+    fun attachmentRoot(): String {
+        val appJson = root?.let { File(it, ".obsidian/app.json") }?.takeIf { it.isFile }?.let { runCatching { it.readText() }.getOrNull() }
+        return VaultLayout.attachmentRoot(appJson, topFolders())
+    }
+
+    val routesFile: File? get() = root?.let { File(it, ROUTES_FILE) }
+
+    /**
+     * Writes a first routes file built from the vault's own folders. Create-only: it refuses if
+     * the file is already there. Returns the number of routes written.
+     */
+    fun createStarterRoutes(): Int {
+        val file = routesFile ?: throw IOException("No vault folder chosen")
+        if (file.exists()) throw IOException("$ROUTES_FILE already exists")
+        val json = VaultLayout.starterRoutesJson(settings.inboxFolder.ifBlank { VaultLayout.DEFAULT_INBOX }, topFolders())
+        val count = Routes.parse(json).size
+        if (!file.createNewFile()) throw IOException("Could not create $ROUTES_FILE")
+        file.writeText(json)
+        return count
+    }
+
+    /** Turns a folder chosen in the system picker into a plain path, or null if it is not on device storage. */
+    fun pathFromTreeUri(uri: Uri): String? {
+        val id = runCatching { DocumentsContract.getTreeDocumentId(uri) }.getOrNull() ?: return null
+        val volume = id.substringBefore(':', "")
+        val relative = id.substringAfter(':', "")
+        val base = if (volume.equals("primary", ignoreCase = true)) Environment.getExternalStorageDirectory() else File("/storage/$volume")
+        if (volume.isEmpty() || !base.isDirectory) return null
+        return if (relative.isEmpty()) base.path else File(base, relative).path
     }
 
     /**
@@ -97,5 +136,10 @@ class Vault(private val settings: Settings) {
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(context, "Obsidian is not installed", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    companion object {
+        /** A route table in the vault with this name replaces the single-inbox default. */
+        const val ROUTES_FILE = "danebrain-routes.json"
     }
 }

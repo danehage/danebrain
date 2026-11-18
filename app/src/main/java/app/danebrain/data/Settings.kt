@@ -41,6 +41,26 @@ class Settings(context: Context) {
         get() = prefs.getString("sync_log", "") ?: ""
         set(v) = prefs.edit().putString("sync_log", v).apply()
 
+    /** Vault-relative folder everything is filed into while the vault has no routes file. */
+    var inboxFolder: String
+        get() = prefs.getString("inbox_folder", "") ?: ""
+        set(v) = prefs.edit().putString("inbox_folder", v.trim().trim('/')).apply()
+
+    /** False until the first-run setup has been finished. Installs that already had a vault count as done. */
+    var setupDone: Boolean
+        get() = prefs.getBoolean("setup_done", vaultPath.isNotBlank())
+        set(v) = prefs.edit().putBoolean("setup_done", v).apply()
+
+    /** Base URL of an OpenAI-compatible API; OpenRouter by default. */
+    var apiBaseUrl: String
+        get() = prefs.getString("api_base_url", DEFAULT_BASE_URL)?.ifBlank { DEFAULT_BASE_URL } ?: DEFAULT_BASE_URL
+        set(v) = prefs.edit().putString("api_base_url", v.trim()).apply()
+
+    val usesOpenRouter: Boolean get() = apiBaseUrl.contains("openrouter.ai")
+
+    /** True when a model call can be attempted: a key is set, or the endpoint is a custom one that may not need a key. */
+    val canCallModel: Boolean get() = apiKey.isNotBlank() || !usesOpenRouter
+
     var apiKey: String
         get() {
             val stored = prefs.getString("api_key_enc", null) ?: return ""
@@ -86,6 +106,7 @@ class Settings(context: Context) {
     companion object {
         const val DEFAULT_VISION_MODEL = "anthropic/claude-haiku-5.5"
         const val DEFAULT_CHAT_MODEL = "anthropic/claude-sonnet-5.5"
+        const val DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
         const val THEME_SYSTEM = "system"
         const val THEME_LIGHT = "light"
         const val THEME_DARK = "dark"

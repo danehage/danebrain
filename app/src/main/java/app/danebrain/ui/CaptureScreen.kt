@@ -82,7 +82,7 @@ fun CaptureScreen(app: App, onSpeak: () -> Unit) {
     val tick by app.captures.changes.collectAsState()
     val queue = remember(tick) { app.captures.list() }
     val problem = remember(tick, ui.resumeTick, ui.tab) { app.vault.problem() }
-    val hasKey = remember(ui.resumeTick, ui.tab) { app.settings.apiKey.isNotBlank() }
+    val hasKey = remember(ui.resumeTick, ui.tab) { app.settings.canCallModel }
     val waiting = remember(ui.resumeTick, ui.syncTick) { app.vault.waitingForSync().size }
 
     /** Stages scanned pages outside the vault and queues them, with the draft text as the user's words. */
@@ -168,7 +168,7 @@ fun CaptureScreen(app: App, onSpeak: () -> Unit) {
                         .padding(14.dp)
                 ) {
                     Text(
-                        problem ?: "No OpenRouter API key yet. Notes can be saved raw; scans and filing wait in the queue.",
+                        problem ?: "No API key yet. Notes can be saved raw; scans and filing wait in the queue.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = colors.onErrorContainer,
                     )

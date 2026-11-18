@@ -18,10 +18,11 @@ data class NoteDraft(
 )
 
 object NoteBuilder {
+    /** Default scans folder; the app passes the vault's own attachment folder instead. */
     const val IMAGE_ROOT = "90-Attachments/scans"
 
-    /** Folder for scan images, relative to the vault root. */
-    fun imageFolder(date: String): String = "$IMAGE_ROOT/${date.take(4)}"
+    /** Folder for scan images, relative to the vault root: one subfolder per year under [scansRoot]. */
+    fun imageFolder(date: String, scansRoot: String = IMAGE_ROOT): String = "$scansRoot/${date.take(4)}"
 
     fun imageName(stem: String, page: Int): String = "$stem-p$page.jpg"
 

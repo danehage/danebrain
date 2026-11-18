@@ -21,7 +21,7 @@ class AnalyzeWorker(context: Context, params: WorkerParameters) : CoroutineWorke
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val app = applicationContext as App
-        if (app.settings.apiKey.isBlank()) return@withContext Result.success()
+        if (!app.settings.canCallModel) return@withContext Result.success()
         for (capture in app.captures.pending()) {
             try {
                 val analysis = app.analyzer.analyze(capture)

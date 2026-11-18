@@ -7,7 +7,7 @@ import java.io.IOException
  * Creates new files in the vault. It never overwrites, edits, moves or deletes anything that was
  * there before the call; on failure it removes only the files this call created.
  */
-class VaultWriter(private val vaultRoot: File) {
+class VaultWriter(private val vaultRoot: File, private val scansRoot: String = NoteBuilder.IMAGE_ROOT) {
 
     data class Result(val notePath: String, val imagePaths: List<String>)
 
@@ -18,7 +18,7 @@ class VaultWriter(private val vaultRoot: File) {
     fun write(draft: NoteDraft, pages: List<File>, noteExists: (String) -> Boolean = { false }): Result {
         if (!vaultRoot.isDirectory) throw IOException("Vault folder not found: ${vaultRoot.path}")
         val noteDir = resolve(draft.route.folder)
-        val imageRel = NoteBuilder.imageFolder(draft.date)
+        val imageRel = NoteBuilder.imageFolder(draft.date, scansRoot)
         val imageDir = resolve(imageRel)
         val stem = freeStem(NoteBuilder.stem(draft), noteDir, imageDir, pages.size)
 
