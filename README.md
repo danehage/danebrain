@@ -192,7 +192,7 @@ The name is the author's. If you fork this, change as much or as little as you l
 | The app's identity, so it installs as a separate app | `applicationId` in `app/build.gradle.kts`, and the three `targetPackage` values in `app/src/main/res/xml/shortcuts.xml` to match. |
 | The routes filename looked for in the vault | `ROUTES_FILE` in `app/src/main/java/app/danebrain/data/Vault.kt`, and rename the file in your vault. |
 | The colors and title font | `app/src/main/java/app/danebrain/ui/Theme.kt`. |
-| The launcher icon | `app/src/main/res/drawable/ic_launcher.xml`. |
+| The launcher icon | `ic_launcher_foreground.xml` and `ic_launcher_monochrome.xml` in `app/src/main/res/drawable/`, and `ic_launcher_background` in `values/colors.xml`. |
 | The vault structure | Rename or delete folders freely, then update the folder tables in `CLAUDE.md` and `AGENTS.md` and the `folder` values in `danebrain-routes.json`. |
 
 The Kotlin package (`app.danebrain`) and the `DANEBRAIN_` signing property names never appear to a user and can stay. To rename the package too, use Android Studio's Refactor → Rename on the package and update `namespace` in `app/build.gradle.kts`.

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher artwork: three notes fanned into a stack. Drawn inside the 66dp safe zone of the adaptive icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#16605B"
+        android:pathData="M45,25 h25 a4,4 0 0 1 4,4 v35 a4,4 0 0 1 -4,4 h-25 a4,4 0 0 1 -4,-4 v-35 a4,4 0 0 1 4,-4 z" />
+    <path
+        android:fillColor="#D4A574"
+        android:pathData="M39.5,32 h25 a4,4 0 0 1 4,4 v35 a4,4 0 0 1 -4,4 h-25 a4,4 0 0 1 -4,-4 v-35 a4,4 0 0 1 4,-4 z" />
+    <path
+        android:fillColor="#FAF8F3"
+        android:pathData="M34,39 h25 a4,4 0 0 1 4,4 v35 a4,4 0 0 1 -4,4 h-25 a4,4 0 0 1 -4,-4 v-35 a4,4 0 0 1 4,-4 z" />
+    <path
+        android:fillColor="#3D3027"
+        android:pathData="M36.5,50 h20 v3.4 h-20 z M36.5,58 h20 v3.4 h-20 z M36.5,66 h12 v3.4 h-12 z" />
+</vector>

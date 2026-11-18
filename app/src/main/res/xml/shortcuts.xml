@@ -3,7 +3,7 @@
     <shortcut
         android:shortcutId="scan"
         android:enabled="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/ic_scan"
         android:shortcutShortLabel="@string/shortcut_scan_short"
         android:shortcutLongLabel="@string/shortcut_scan_long">
         <intent
@@ -14,7 +14,7 @@
     <shortcut
         android:shortcutId="search"
         android:enabled="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/ic_search"
         android:shortcutShortLabel="@string/shortcut_search_short"
         android:shortcutLongLabel="@string/shortcut_search_long">
         <intent

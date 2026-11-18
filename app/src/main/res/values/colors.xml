@@ -2,4 +2,5 @@
 <resources>
     <!-- Shown for a moment before the first frame; matches the app background. -->
     <color name="window_background">#FAF8F3</color>
+    <color name="ic_launcher_background">#207D77</color>
 </resources>
