@@ -159,8 +159,21 @@ object Markdown {
             "|(?<!\\w)_(?!\\s)(.+?)(?<!\\s)_(?!\\w)"         // 9 italic with _
     )
 
-    /** Splits a line of text into styled runs. */
-    fun inline(text: String, base: Span = Span("")): List<Span> {
+    private val ESCAPE = Regex("""\\([!-/:-@\[-`{-~])""")
+    private const val HIDDEN = 0xE000
+
+    /**
+     * Splits a line of text into styled runs. A backslash before punctuation (`\$`, `\*`) means
+     * "this character is literal": it is hidden from the styling pass, then shown without the backslash.
+     */
+    fun inline(text: String): List<Span> {
+        val shielded = ESCAPE.replace(text) { (HIDDEN + it.groupValues[1][0].code).toChar().toString() }
+        return spans(shielded, Span("")).map { span ->
+            span.copy(text = span.text.map { c -> if (c.code in HIDDEN..HIDDEN + 0x7F) (c.code - HIDDEN).toChar() else c }.joinToString(""))
+        }
+    }
+
+    private fun spans(text: String, base: Span): List<Span> {
         val out = ArrayList<Span>()
         var pos = 0
         for (m in INLINE.findAll(text)) {
@@ -174,11 +187,11 @@ object Markdown {
                     out.add(base.copy(text = label.ifEmpty { g[2] }, link = target.ifEmpty { null }, linkIsNote = true))
                 }
                 g[3].isNotEmpty() -> out.add(base.copy(text = g[3], link = g[4], linkIsNote = false))
-                g[5].isNotEmpty() -> out.addAll(inline(g[5], base.copy(bold = true)))
-                g[6].isNotEmpty() -> out.addAll(inline(g[6], base.copy(highlight = true)))
-                g[7].isNotEmpty() -> out.addAll(inline(g[7], base.copy(strike = true)))
-                g[8].isNotEmpty() -> out.addAll(inline(g[8], base.copy(italic = true)))
-                g[9].isNotEmpty() -> out.addAll(inline(g[9], base.copy(italic = true)))
+                g[5].isNotEmpty() -> out.addAll(spans(g[5], base.copy(bold = true)))
+                g[6].isNotEmpty() -> out.addAll(spans(g[6], base.copy(highlight = true)))
+                g[7].isNotEmpty() -> out.addAll(spans(g[7], base.copy(strike = true)))
+                g[8].isNotEmpty() -> out.addAll(spans(g[8], base.copy(italic = true)))
+                g[9].isNotEmpty() -> out.addAll(spans(g[9], base.copy(italic = true)))
             }
             pos = m.range.last + 1
         }

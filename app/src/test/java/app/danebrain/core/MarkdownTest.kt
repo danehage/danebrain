@@ -109,4 +109,13 @@ class MarkdownTest {
         assertEquals(listOf(Span("snake_case_name and 2 * 3 * 4")), Markdown.inline("snake_case_name and 2 * 3 * 4"))
         assertEquals(listOf(Span("section", link = "note", linkIsNote = true)), Markdown.inline("[[note#heading|section]]"))
     }
+
+    @Test fun backslashEscapesShowTheBareCharacter() {
+        assertEquals(
+            listOf(Span("one instinct - sold for ${'$'}19 million! not *italic*")),
+            Markdown.inline("""one instinct \- sold for \${'$'}19 million\! not \*italic\*"""),
+        )
+        // A backslash before a letter is not an escape.
+        assertEquals(listOf(Span("""a path C:\temp stays""")), Markdown.inline("""a path C:\temp stays"""))
+    }
 }
