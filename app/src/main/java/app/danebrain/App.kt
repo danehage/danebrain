@@ -85,6 +85,9 @@ class App : Application() {
     lateinit var chatEngine: ChatEngine
     lateinit var ui: UiState
 
+    /** True while the activity is on screen; background work uses it to decide whether to notify. */
+    @Volatile var inForeground = false
+
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onCreate() {

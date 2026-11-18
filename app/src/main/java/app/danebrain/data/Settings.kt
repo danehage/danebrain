@@ -61,6 +61,11 @@ class Settings(context: Context) {
     /** True when a model call can be attempted: a key is set, or the endpoint is a custom one that may not need a key. */
     val canCallModel: Boolean get() = apiKey.isNotBlank() || !usesOpenRouter
 
+    /** True once the notification permission has been asked for, so it is only asked once. */
+    var askedToNotify: Boolean
+        get() = prefs.getBoolean("asked_to_notify", false)
+        set(v) = prefs.edit().putBoolean("asked_to_notify", v).apply()
+
     var apiKey: String
         get() {
             val stored = prefs.getString("api_key_enc", null) ?: return ""

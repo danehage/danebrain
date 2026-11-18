@@ -11,6 +11,7 @@ import app.danebrain.data.CaptureRepo
 import app.danebrain.data.ImageUtil
 import app.danebrain.ui.Root
 import app.danebrain.work.AnalyzeWorker
+import app.danebrain.work.Notifier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,6 +35,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        app.inForeground = true
+        Notifier.clear(this)
         app.ui.resumeTick++
         app.loadRoutes()
         app.refreshIndex()
@@ -42,6 +45,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
+        app.inForeground = false
         app.settings.draft = app.ui.draft
     }
 
@@ -54,6 +58,13 @@ class MainActivity : ComponentActivity() {
                 ui.reviewId = null
                 ui.tab = Tab.Capture
                 ui.scanRequested = true
+            }
+            ACTION_REVIEW -> {
+                val id = intent.getLongExtra(EXTRA_CAPTURE_ID, -1)
+                ui.viewing.clear()
+                ui.writing = false
+                ui.tab = Tab.Capture
+                ui.reviewId = if (id >= 0 && app.captures.get(id) != null) id else null
             }
             ACTION_SEARCH -> {
                 ui.viewing.clear()
@@ -114,5 +125,7 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val ACTION_SCAN = "app.danebrain.action.SCAN"
         const val ACTION_SEARCH = "app.danebrain.action.SEARCH"
+        const val ACTION_REVIEW = "app.danebrain.action.REVIEW"
+        const val EXTRA_CAPTURE_ID = "capture_id"
     }
 }

@@ -196,5 +196,7 @@ Still open:
 - **First run.** A setup screen walks through all-files access, choosing the vault (auto-detect, a folder picker or a typed path), the inbox folder and the API key, with a button that tests the key.
 - **Model endpoint.** The API address is a setting, so any OpenAI-compatible service can be used. The no-retention provider filter is only sent to OpenRouter.
 - **Obsidian is optional.** Any folder can be chosen as the vault; the `.obsidian` check is gone. The sync reminder and the "Open in Obsidian" button appear only when the folder has a `.obsidian` folder.
+- **Notifications.** When background analysis finishes while the app is not on screen, a notification says the capture is ready (or needs filing by hand) and opens its review. Permission is asked for the first time something is queued.
+- **Sync Obsidian shortcut.** Settings can pin a home-screen shortcut that opens `obsidian://open?vault=<name>`, since Obsidian Sync only runs while Obsidian is open.
 - **Note reader.** Search results and chat citations open in a built-in read-only Markdown reader (`core/Markdown.kt`, `ui/NoteScreen.kt`) that follows wikilinks and shows embedded images; a button opens the note in Obsidian.
 - **Not built:** per-vendor rules, embeddings.

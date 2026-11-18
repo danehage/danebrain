@@ -97,6 +97,7 @@ Notes get lost between having a thought and sitting down at a computer. The app 
 - **Speak.** In-app dictation with the phone's own speech recognizer. It keeps listening through pauses.
 - **Write.** A full-page editor. Save the text as it is with no model call, or let the model title and file it.
 - **Share.** Send text, links or images to it from any other app.
+- **Review.** Captures are read in the background; a notification tells you when one is ready, and tapping it opens the review.
 - **Search.** Instant offline full-text search over every note.
 - **Read.** Notes open in a built-in reader with headings, lists, tables, embedded scans and tappable links between notes. If the folder is an Obsidian vault, one tap opens the same note there.
 - **Ask.** Chat with a model that can search the vault and read notes. Answers cite the notes they came from.
@@ -157,7 +158,7 @@ The route named `inbox` is the fallback. Scans go to `scans/<year>/` inside your
 
 ### Limits
 
-- The app does not sync anything itself; whatever syncs your folder carries new notes to your other devices. With Obsidian Sync that happens only while Obsidian is open on the phone, so for Obsidian vaults the home screen counts notes saved since Obsidian was last open.
+- The app does not sync anything itself; whatever syncs your folder carries new notes to your other devices. With Obsidian Sync that happens only while Obsidian is open on the phone, so for Obsidian vaults the home screen counts notes saved since Obsidian was last open, and Settings can add a "Sync Obsidian" button to your home screen that opens Obsidian on the vault.
 - The built-in reader covers everyday Markdown. Obsidian plugin output, such as Dataview queries, shows as plain text.
 - The Ask conversation is lost when the app is closed.
 - The route table is edited as a file, not in the app.

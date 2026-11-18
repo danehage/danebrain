@@ -50,6 +50,7 @@ fun WriteScreen(app: App, onDictate: () -> Unit) {
     val context = LocalContext.current
     val colors = MaterialTheme.colorScheme
     val problem = remember(ui.resumeTick) { app.vault.problem() }
+    val askToNotify = rememberNotificationAsk(app)
 
     fun done() {
         ui.draft = ""
@@ -87,6 +88,7 @@ fun WriteScreen(app: App, onDictate: () -> Unit) {
         done()
         AnalyzeWorker.enqueue(context)
         Toast.makeText(context, "Queued for filing", Toast.LENGTH_SHORT).show()
+        askToNotify()
     }
 
     // Open the keyboard only for a blank page; after dictation the words are there to read first.

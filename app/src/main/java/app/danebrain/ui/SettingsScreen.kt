@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -86,6 +88,22 @@ fun SettingsScreen(app: App) {
                 remember(vaultTick, ui.resumeTick) { "${app.vault.attachmentRoot()}/scans/" },
                 style = mono,
             )
+            if (remember(vaultTick, ui.resumeTick) { app.vault.isObsidianVault }) {
+                Spacer(Modifier.height(18.dp))
+                Eyebrow("Obsidian Sync")
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "Obsidian only syncs while it is open. This adds a home-screen button that opens it on this vault.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(onClick = {
+                    if (!app.vault.pinSyncShortcut(context)) {
+                        Toast.makeText(context, "This home screen cannot add shortcuts", Toast.LENGTH_LONG).show()
+                    }
+                }) { Text("Add a Sync Obsidian button") }
+            }
         }
 
         Spacer(Modifier.height(32.dp))

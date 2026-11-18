@@ -7,6 +7,10 @@ import android.net.Uri
 import android.os.Environment
 import android.widget.Toast
 import android.provider.DocumentsContract
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.graphics.drawable.IconCompat
+import app.danebrain.R
 import app.danebrain.core.Routes
 import app.danebrain.core.SyncLog
 import app.danebrain.core.VaultLayout
@@ -111,6 +115,25 @@ class Vault(private val settings: Settings) {
     fun recordWrite(notePath: String) {
         if (!isObsidianVault) return
         settings.syncLog = SyncLog.add(settings.syncLog, notePath, System.currentTimeMillis())
+    }
+
+    private fun obsidianIntent(): Intent =
+        Intent(Intent.ACTION_VIEW, Uri.parse("obsidian://open?vault=${Uri.encode(name)}")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    /**
+     * Asks the launcher to put a "Sync Obsidian" button on the home screen. The button opens
+     * Obsidian on this vault directly, which is what starts Obsidian Sync on a phone. Returns false
+     * if the launcher cannot pin shortcuts.
+     */
+    fun pinSyncShortcut(context: Context): Boolean {
+        if (!ShortcutManagerCompat.isRequestPinShortcutSupported(context)) return false
+        val shortcut = ShortcutInfoCompat.Builder(context, "sync_obsidian")
+            .setShortLabel("Sync Obsidian")
+            .setLongLabel("Open Obsidian to sync")
+            .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_shortcut_sync))
+            .setIntent(obsidianIntent())
+            .build()
+        return ShortcutManagerCompat.requestPinShortcut(context, shortcut, null)
     }
 
     /** Brings Obsidian to the front on this vault, which is what lets Obsidian Sync run. */
