@@ -50,6 +50,8 @@ class UiState(initialDraft: String, initialTheme: String, needsSetup: Boolean) {
     var tab by mutableStateOf(Tab.Capture)
     var reviewId by mutableStateOf<Long?>(null)
     var draft by mutableStateOf(initialDraft)
+    /** Notes open in the reader, as vault-relative paths; the last one is on screen. */
+    val viewing = mutableStateListOf<String>()
     /** True while the full-page draft editor is open. */
     var writing by mutableStateOf(false)
     var scanRequested by mutableStateOf(false)

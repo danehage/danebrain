@@ -1,5 +1,6 @@
 package app.danebrain.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -96,8 +97,9 @@ fun ChatScreen(app: App) {
     }
 
     fun openNote(name: String) {
-        val path = app.index.pathForStem(name.substringAfterLast('/')) ?: name
-        app.vault.openInObsidian(context, path)
+        val path = app.index.pathForStem(name.substringAfterLast('/').removeSuffix(".md"))
+        if (path != null) ui.viewing.add(path)
+        else Toast.makeText(context, "No note named $name", Toast.LENGTH_SHORT).show()
     }
 
     val colors = MaterialTheme.colorScheme
@@ -123,7 +125,7 @@ fun ChatScreen(app: App) {
                     Text("Ask your notes anything.", style = MaterialTheme.typography.headlineLarge)
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        "Answers cite the notes they came from. Tap a citation to open it in Obsidian.",
+                        "Answers cite the notes they came from. Tap a citation to read the note.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = colors.onSurfaceVariant,
                     )

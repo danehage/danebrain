@@ -89,7 +89,8 @@ Notes get lost between having a thought and sitting down at a computer. The app 
 - **Speak.** In-app dictation with the phone's own speech recognizer. It keeps listening through pauses.
 - **Write.** A full-page editor. Save the text as it is with no model call, or let the model title and file it.
 - **Share.** Send text, links or images to it from any other app.
-- **Search.** Instant offline full-text search over every note; results open in Obsidian.
+- **Search.** Instant offline full-text search over every note.
+- **Read.** Notes open in a built-in reader with headings, lists, tables, embedded scans and tappable links between notes. One tap opens the same note in Obsidian.
 - **Ask.** Chat with a model that can search the vault and read notes. Answers cite the notes they came from.
 
 Rules it holds to:

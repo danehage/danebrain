@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -51,7 +50,6 @@ import kotlinx.coroutines.withContext
 @Composable
 fun SearchScreen(app: App) {
     val ui = app.ui
-    val context = LocalContext.current
     val colors = MaterialTheme.colorScheme
     var query by rememberSaveable { mutableStateOf("") }
     var hits by remember { mutableStateOf(emptyList<SearchHit>()) }
@@ -112,7 +110,7 @@ fun SearchScreen(app: App) {
             items(hits, key = { it.path }) { hit ->
                 Column(
                     Modifier.fillMaxWidth()
-                        .clickable { app.vault.openInObsidian(context, hit.path) }
+                        .clickable { ui.viewing.add(hit.path) }
                         .padding(vertical = 14.dp)
                 ) {
                     Text(hit.title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)

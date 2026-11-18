@@ -49,12 +49,14 @@ class MainActivity : ComponentActivity() {
         val ui = app.ui
         when (intent?.action) {
             ACTION_SCAN -> {
+                ui.viewing.clear()
                 ui.writing = false
                 ui.reviewId = null
                 ui.tab = Tab.Capture
                 ui.scanRequested = true
             }
             ACTION_SEARCH -> {
+                ui.viewing.clear()
                 ui.writing = false
                 ui.reviewId = null
                 ui.tab = Tab.Search

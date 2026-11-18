@@ -117,6 +117,22 @@ class Vault(private val settings: Settings) {
         }
     }
 
+    /**
+     * Finds an embedded file by the name used in `![[name]]`, the way Obsidian does: a path if one
+     * was given, otherwise the first file with that name anywhere in the vault. Call off the main thread.
+     */
+    fun findAttachment(name: String): File? {
+        val r = root ?: return null
+        if (name.contains('/')) runCatching { resolve(name) }.getOrNull()?.takeIf { it.isFile }?.let { return it }
+        val wanted = name.substringAfterLast('/')
+        // Scans live under the attachment folder, so look there before walking everything.
+        val starts = listOf(File(r, attachmentRoot()), r)
+        for (start in starts) {
+            start.walkTopDown().onEnter { !it.name.startsWith(".") }.firstOrNull { it.isFile && it.name == wanted }?.let { return it }
+        }
+        return null
+    }
+
     /** Resolves a vault-relative path, refusing anything that escapes the vault. */
     fun resolve(relative: String): File {
         val r = root ?: throw IOException("No vault folder chosen")
