@@ -19,11 +19,13 @@ flowchart LR
 ```
 
 <p>
-  <img src="docs/screenshots/capture-dark.png" width="200" alt="Capture screen, dark theme">
-  <img src="docs/screenshots/capture-light.png" width="200" alt="Capture screen, light theme">
-  <img src="docs/screenshots/ask.png" width="200" alt="Ask screen">
-  <img src="docs/screenshots/setup.png" width="200" alt="First-run setup screen">
+  <img src="docs/screenshots/capture.png" width="190" alt="Home screen with three capture buttons and one capture waiting for review">
+  <img src="docs/screenshots/review.png" width="190" alt="Review screen with a suggested title, destination and two dates found, each with a switch">
+  <img src="docs/screenshots/reader.png" width="190" alt="A note open in the built-in reader, with properties, checkboxes, a table and links">
+  <img src="docs/screenshots/search.png" width="190" alt="Search results with matches highlighted">
 </p>
+
+<sub>Left to right: capture, review before filing, the note reader, search. The notes shown are sample data. The app also has a dark theme and a first-run setup: <a href="docs/screenshots/capture-dark.png">dark</a>, <a href="docs/screenshots/setup.png">setup</a>, <a href="docs/screenshots/ask.png">ask</a>.</sub>
 
 New to this? Start at part 1. Already have a folder of notes, in Obsidian or not? Skip to [part 3](#3-the-phone-app); the app works with any folder of Markdown files.
 
@@ -157,6 +159,19 @@ The route named `inbox` is the fallback. Scans go to `scans/<year>/` inside your
 - Dictation uses the phone's speech recognizer, on-device where the phone supports it.
 - Calendar events are written to a calendar already on the phone, through Android itself. The app does not sign in to any calendar service.
 - The API key is encrypted with a key held in the Android Keystore.
+
+**Permissions it asks for, and why**
+
+| Permission | Why |
+|---|---|
+| All-files access | To read and write the vault folder you choose. |
+| Internet, network state | To call the model you configure. Nothing else is contacted. |
+| Microphone | Dictation, when you tap Speak. |
+| Notifications | To tell you a capture is ready to review. |
+| Calendar | Only if you turn the calendar feature on. |
+| Run at startup, keep awake, foreground service | Declared by Android's background-work library so queued captures finish after a restart or without signal. |
+
+On recent Android versions the app's info page may also list "Nearby devices". The app does not request it; Android grants local-network access automatically to apps that can use the internet.
 
 ### Limits
 
