@@ -195,5 +195,6 @@ Still open:
 - **Image folder.** Scans go to `<attachments>/scans/<year>/`, where `<attachments>` is Obsidian's configured attachment folder when it names a fixed folder, else an existing top-level folder with "attachments" in its name, else `Attachments`.
 - **First run.** A setup screen walks through all-files access, choosing the vault (auto-detect, a folder picker or a typed path), the inbox folder and the API key, with a button that tests the key.
 - **Model endpoint.** The API address is a setting, so any OpenAI-compatible service can be used. The no-retention provider filter is only sent to OpenRouter.
+- **Obsidian is optional.** Any folder can be chosen as the vault; the `.obsidian` check is gone. The sync reminder and the "Open in Obsidian" button appear only when the folder has a `.obsidian` folder.
 - **Note reader.** Search results and chat citations open in a built-in read-only Markdown reader (`core/Markdown.kt`, `ui/NoteScreen.kt`) that follows wikilinks and shows embedded images; a button opens the note in Obsidian.
 - **Not built:** per-vendor rules, embeddings.

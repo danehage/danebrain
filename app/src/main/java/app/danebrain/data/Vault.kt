@@ -20,6 +20,9 @@ class Vault(private val settings: Settings) {
 
     val name: String get() = root?.name.orEmpty()
 
+    /** True when Obsidian has been used on this folder. The app works without it; a few extras depend on it. */
+    val isObsidianVault: Boolean get() = root?.let { File(it, ".obsidian").isDirectory } == true
+
     fun hasAccess(): Boolean = Environment.isExternalStorageManager()
 
     /** Null when everything is in place, otherwise what the user needs to fix. */
@@ -27,11 +30,10 @@ class Vault(private val settings: Settings) {
         if (!hasAccess()) return "All-files access is off, so the vault cannot be read."
         val r = root ?: return "No vault folder chosen."
         if (!r.isDirectory) return "Vault folder not found: ${r.path}"
-        if (!File(r, ".obsidian").isDirectory) return "That folder has no .obsidian folder, so it is not an Obsidian vault."
         return null
     }
 
-    /** Folders in shared storage that contain a .obsidian folder, searched three levels deep. */
+    /** Obsidian vaults in shared storage (folders with a .obsidian folder), searched three levels deep. Other note folders are chosen by browsing. */
     fun detect(): List<File> {
         val base = Environment.getExternalStorageDirectory()
         val found = ArrayList<File>()
@@ -95,8 +97,10 @@ class Vault(private val settings: Settings) {
         return File(r, ".obsidian").listFiles()?.filter { it.isFile }?.maxOfOrNull { it.lastModified() } ?: 0
     }
 
-    /** Notes this app wrote since Obsidian was last open, which Obsidian Sync cannot have sent yet. */
+    /** Notes this app wrote since Obsidian was last open, which Obsidian Sync cannot have sent yet. Empty for a folder Obsidian does not use. */
     fun waitingForSync(): List<String> {
+        // Without Obsidian there is no way to tell what has synced, so there is nothing to remind about.
+        if (!isObsidianVault) return emptyList()
         val lastOpen = obsidianLastOpen()
         val pruned = SyncLog.prune(settings.syncLog, lastOpen)
         if (pruned != settings.syncLog) settings.syncLog = pruned

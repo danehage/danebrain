@@ -88,7 +88,7 @@ fun SetupScreen(app: App) {
         Text("Set up $appName", style = MaterialTheme.typography.headlineLarge)
         Spacer(Modifier.height(8.dp))
         Text(
-            "It files what you scan, say and type into your Obsidian vault. It only ever adds new files.",
+            "It files what you scan, say and type into your notes folder as Markdown files. It only ever adds new files.",
             style = MaterialTheme.typography.bodyMedium,
             color = colors.onSurfaceVariant,
         )
@@ -114,8 +114,8 @@ fun SetupScreen(app: App) {
                 if (!vaultOk) {
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        "No vault yet? Copy the starter vault from this project's page into your Documents folder, " +
-                            "open it once in Obsidian, then come back here.",
+                        "A vault is any folder of Markdown notes. Use Browse to pick one, or copy the starter vault " +
+                            "from this project's page into your Documents folder first.",
                         style = MaterialTheme.typography.bodySmall,
                         color = colors.onSurfaceVariant,
                     )
@@ -259,7 +259,7 @@ fun VaultPicker(app: App, onChanged: () -> Unit = {}) {
                 scope.launch {
                     val found = withContext(Dispatchers.IO) { app.vault.detect() }
                     when (found.size) {
-                        0 -> message = "No Obsidian vault found in shared storage. If the vault lives in Obsidian's app storage, move it to device storage first."
+                        0 -> message = "No Obsidian vault found in shared storage. Use Browse to pick any folder of notes. A vault kept in Obsidian's own app storage has to be moved to device storage first."
                         1 -> {
                             choose(found.first().path)
                             message = "Found ${found.first().name}"

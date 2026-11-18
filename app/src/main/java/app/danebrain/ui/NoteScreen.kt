@@ -119,7 +119,9 @@ fun NoteScreen(app: App, path: String) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = { ui.viewing.removeLastOrNull() }) { Text("Back") }
             Spacer(Modifier.weight(1f))
-            TextButton(onClick = { app.vault.openInObsidian(context, path) }) { Text("Open in Obsidian") }
+            if (remember(path) { app.vault.isObsidianVault }) {
+                TextButton(onClick = { app.vault.openInObsidian(context, path) }) { Text("Open in Obsidian") }
+            }
         }
         when (val state = loaded) {
             Loaded.Reading -> {}

@@ -1,6 +1,6 @@
 # Starter vault
 
-An empty Obsidian vault with a folder structure, instructions for Claude, a few templates and skills, and a routes file for the phone app. Copy this folder, rename it, and it is yours.
+An empty vault (a folder of Markdown notes) with a folder structure, instructions for Claude, a few templates and skills, and a routes file for the phone app. Copy this folder, rename it, and it is yours.
 
 ## What is in it
 
@@ -18,14 +18,14 @@ An empty Obsidian vault with a folder structure, instructions for Claude, a few 
 | `AGENTS.md` | A short brief on you and the folder map. Claude Code reads it, and the phone app sends it with every Ask conversation. |
 | `.claude/skills/` | Two skills: a weekly review and an article summarizer. |
 | `danebrain-routes.json` | The phone app's filing destinations, matching these folders. |
-| `.obsidian/` | Three small settings: attachments go to `90-Attachments/`, new notes to `00-Inbox/`, daily notes to `50-Daily/`. |
+| `.obsidian/` | Only used if you open the vault in Obsidian. Three small settings: attachments go to `90-Attachments/`, new notes to `00-Inbox/`, daily notes to `50-Daily/`. |
 
 The folders follow PARA (Projects, Areas, Resources, Archive). The numbers only fix the order in the sidebar.
 
 ## Set it up
 
 1. Copy this folder to where you keep documents and rename it, for example `MyVault`.
-2. In Obsidian choose **Open folder as vault** and pick it.
+2. Optional: to browse and edit it by hand, install [Obsidian](https://obsidian.md), choose **Open folder as vault** and pick it.
 3. Open `AGENTS.md` and `CLAUDE.md` and replace the "fill this in" lines with a few facts about you.
 4. In a terminal, `cd` into the vault and run `claude`. Try "what is in my inbox?" or "run my weekly review".
 

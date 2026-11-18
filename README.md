@@ -4,7 +4,7 @@
 
 A personal knowledge setup in three parts:
 
-1. **A vault.** A folder of Markdown notes, opened with [Obsidian](https://obsidian.md), with a simple structure.
+1. **A vault.** A folder of Markdown notes with a simple structure. [Obsidian](https://obsidian.md) is a good way to browse and sync it, and is optional.
 2. **Claude on the desktop.** [Claude Code](https://claude.com/claude-code) runs inside the vault folder to file, find and summarize notes.
 3. **A phone app.** An Android app that scans paper, takes dictation and typed notes, files them into the vault, and searches and answers questions about it.
 
@@ -15,7 +15,7 @@ flowchart LR
     P["Phone app<br/>scan · speak · write"] -->|new notes| V[("Vault<br/>Markdown files")]
     V -->|search · ask| P
     C["Claude Code<br/>on the desktop"] <-->|file · query · review| V
-    O["Obsidian"] <-->|read · write · sync| V
+    O["Obsidian<br/>(optional)"] <-.->|browse · edit · sync| V
 ```
 
 <p>
@@ -25,11 +25,11 @@ flowchart LR
   <img src="docs/screenshots/setup.png" width="200" alt="First-run setup screen">
 </p>
 
-New to Obsidian? Start at part 1. Already have a vault? Skip to [part 3](#3-the-phone-app); the app works with any vault.
+New to this? Start at part 1. Already have a folder of notes, in Obsidian or not? Skip to [part 3](#3-the-phone-app); the app works with any folder of Markdown files.
 
 ## 1. The vault
 
-Obsidian is a free note-taking app that works on a folder of plain Markdown files, which it calls a vault. Because the notes are ordinary files, other programs can read and write them too. The rest of this setup depends on that.
+A vault is nothing more than a folder of plain Markdown files. Because the notes are ordinary files, any program can read and write them: a text editor, Claude, the phone app. The rest of this setup depends on that, and on nothing else.
 
 [`vault-starter/`](vault-starter/) is an empty vault you can copy. Its structure:
 
@@ -48,11 +48,19 @@ This is the PARA method (Projects, Areas, Resources, Archive) with an inbox and 
 
 **Set it up**
 
-1. Install [Obsidian](https://obsidian.md) on your computer.
-2. Copy `vault-starter/` to where you keep documents and rename it, for example `MyVault`.
-3. In Obsidian choose **Open folder as vault** and pick that folder.
+Copy `vault-starter/` to where you keep documents and rename it, for example `MyVault`. That is the whole setup: you now have a vault.
 
-To have the vault on your phone and computer both, you need something that syncs the folder. [Obsidian Sync](https://obsidian.md/sync) is the paid, built-in way and is what this setup was built around. On Android, create the vault in device storage (for example `Documents/MyVault`), not in Obsidian's app storage, or the phone app in part 3 cannot reach it.
+**Where Obsidian fits**
+
+[Obsidian](https://obsidian.md) is a free app for reading and writing a folder like this, and the conventions here (`[[links]]` between notes, frontmatter, `![[image]]` embeds) are the ones it uses. Nothing in this setup requires it. It earns its place for three things:
+
+- **Browsing and editing by hand.** Rendered notes, clickable links, backlinks, and table views over frontmatter.
+- **Sync.** To have the vault on your phone and your computer, something has to sync the folder. [Obsidian Sync](https://obsidian.md/sync) is the paid, built-in way and is what this setup was built around. Any folder sync works instead, such as Syncthing.
+- **Templates and daily notes.** One tap to create today's note from a template.
+
+To use it, install Obsidian, choose **Open folder as vault**, and pick your folder. The starter vault includes three small Obsidian settings so attachments, new notes and daily notes land in the right folders.
+
+On Android, keep the vault in device storage (for example `Documents/MyVault`), not inside another app's private storage, or the phone app in part 3 cannot reach it.
 
 ## 2. Claude in the vault
 
@@ -90,19 +98,19 @@ Notes get lost between having a thought and sitting down at a computer. The app 
 - **Write.** A full-page editor. Save the text as it is with no model call, or let the model title and file it.
 - **Share.** Send text, links or images to it from any other app.
 - **Search.** Instant offline full-text search over every note.
-- **Read.** Notes open in a built-in reader with headings, lists, tables, embedded scans and tappable links between notes. One tap opens the same note in Obsidian.
+- **Read.** Notes open in a built-in reader with headings, lists, tables, embedded scans and tappable links between notes. If the folder is an Obsidian vault, one tap opens the same note there.
 - **Ask.** Chat with a model that can search the vault and read notes. Answers cite the notes they came from.
 
 Rules it holds to:
 
-- **Create only.** It creates new files. It never edits, moves or deletes anything already in the vault, and never writes to `.obsidian/`.
+- **Create only.** It creates new files. It never edits, moves or deletes anything already in the vault, and never writes to Obsidian's `.obsidian/` settings folder.
 - **Never lose a capture.** A scan or note is saved on the phone the moment it is taken, and waits in a queue if there is no signal or the model fails.
 - **Code decides paths.** The model picks a route and proposes a title; the app maps that to a folder and filename.
 
 **Requirements**
 
 - Android 11 or newer, with Google Play services (the document scanner uses ML Kit).
-- A vault in shared device storage, for example `Documents/MyVault`.
+- A folder of Markdown notes in shared device storage, for example `Documents/MyVault`. It does not have to be an Obsidian vault.
 - An [OpenRouter](https://openrouter.ai) API key for scanning, filing and Ask. Saving notes as they are and searching work without one. Any OpenAI-compatible service can be used instead by changing the API address in Settings.
 
 The app asks for all-files access, because it has to read and write an arbitrary vault folder. That permission is why it is installed from a file and is not on the Play Store.
@@ -138,7 +146,7 @@ Without that file the app files everything into one inbox folder that you pick, 
 | `hub`, `hubReason` | Adds a line linking the note to a hub note, with the reason. |
 | `wordsHeading` | Heading over your own words in a `wine-bottle` note. Default "In my words". |
 
-The route named `inbox` is the fallback. Scans go to `scans/<year>/` inside your Obsidian attachment folder.
+The route named `inbox` is the fallback. Scans go to `scans/<year>/` inside your attachment folder: the one set in Obsidian if you use it, otherwise an existing attachments folder, otherwise a new `Attachments`.
 
 ### Privacy
 
@@ -149,7 +157,8 @@ The route named `inbox` is the fallback. Scans go to `scans/<year>/` inside your
 
 ### Limits
 
-- Notes reach your other devices only while Obsidian is open on the phone, because Obsidian Sync does the syncing. The home screen counts notes saved since Obsidian was last open.
+- The app does not sync anything itself; whatever syncs your folder carries new notes to your other devices. With Obsidian Sync that happens only while Obsidian is open on the phone, so for Obsidian vaults the home screen counts notes saved since Obsidian was last open.
+- The built-in reader covers everyday Markdown. Obsidian plugin output, such as Dataview queries, shows as plain text.
 - The Ask conversation is lost when the app is closed.
 - The route table is edited as a file, not in the app.
 - A personal project, tested on one phone.
