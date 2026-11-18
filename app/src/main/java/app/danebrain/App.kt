@@ -99,7 +99,7 @@ class App : Application() {
         vault = Vault(settings)
         loadRoutes()
         api = OpenRouter({ settings.apiKey }, { settings.apiBaseUrl })
-        analyzer = Analyzer(api, { routes }) { settings.visionModel }
+        analyzer = Analyzer(api, { routes }, { settings.visionModel }) { settings.calendarId >= 0 }
         chatEngine = ChatEngine(api, settings, vault, index)
         ui = UiState(settings.draft, settings.themeMode, needsSetup = !settings.setupDone)
     }

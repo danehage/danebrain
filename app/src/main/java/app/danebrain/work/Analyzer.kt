@@ -11,7 +11,10 @@ import java.io.File
 import java.time.LocalDate
 
 /** One model call per capture: pages and typed text in, a filing suggestion out. */
-class Analyzer(private val api: OpenRouter, private val routes: () -> List<Route>, private val model: () -> String) {
+class Analyzer(private val api: OpenRouter, private val routes: () -> List<Route>, private val model: () -> String,
+    /** True when the user has a calendar switched on, so dated items are worth asking for. */
+    private val wantEvents: () -> Boolean = { false },
+) {
 
     fun analyze(capture: Capture): Analysis {
         val content = JSONArray()
@@ -35,7 +38,7 @@ class Analyzer(private val api: OpenRouter, private val routes: () -> List<Route
             .put("response_format", JSONObject().put("type", "json_object"))
             .put(
                 "messages", JSONArray()
-                    .put(JSONObject().put("role", "system").put("content", Analysis.systemPrompt(routes(), LocalDate.now().toString())))
+                    .put(JSONObject().put("role", "system").put("content", Analysis.systemPrompt(routes(), LocalDate.now().toString(), wantEvents())))
                     .put(JSONObject().put("role", "user").put("content", content))
             )
         val message = api.chat(body)

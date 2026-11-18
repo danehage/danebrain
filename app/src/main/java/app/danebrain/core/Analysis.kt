@@ -76,8 +76,19 @@ data class Analysis(
         }
 
         /** The instructions sent with every capture. Only route names and descriptions leave the phone. */
-        fun systemPrompt(routes: List<Route>, today: String): String {
+        /**
+         * [wantEvents] adds the request for dated items; it is false when the user has no calendar
+         * switched on, so the model is not asked for something nobody will see.
+         */
+        fun systemPrompt(routes: List<Route>, today: String, wantEvents: Boolean = true): String {
             val routeLines = routes.joinToString("\n") { "- ${it.key}: ${it.whenText}" }
+            val eventsField = if (wantEvents) ",\n  \"events\": array, see below" else ""
+            val eventsRules = if (!wantEvents) "" else """
+
+"events" lists things in the capture that happen on a specific date and that a person might put on a calendar: appointments, deadlines, payment due dates, renewals, deliveries. Each is {"title": a few words that make sense on a calendar, "date": "YYYY-MM-DD", "time": "HH:MM" in 24-hour form, or "" when no time is given}.
+- Only dates on or after today. Work out relative dates such as "next Tuesday" from today's date.
+- Leave out the date a document was issued or printed, and anything already in the past.
+- Use [] when there is nothing of the kind. Never invent a date."""
             return """
 You file captures into a personal Obsidian vault. A capture is typed or dictated text, scanned pages, or both. Today is $today.
 
@@ -88,8 +99,7 @@ Reply with one JSON object and nothing else:
   "summary": one or two plain sentences,
   "transcription": for scans, the full text of the pages in reading order as markdown; "" when there are no pages,
   "tags": up to 4 lowercase kebab-case topic tags,
-  "fields": object, see below,
-  "events": array, see below
+  "fields": object, see below$eventsField
 }
 
 Routes:
@@ -105,12 +115,7 @@ Rules:
   producer, wine (the cuvee or bottling name), vintage (year), grapes (comma-separated), place (appellation or region), country, color (red, white, rose, sparkling, orange, fortified)
 "fields" for route "document":
   vendor, doc_kind (invoice, bill, receipt, statement, letter or other), amount (total due or total paid, digits only), currency (ISO code), doc_date, due_date, account_last4 (last four characters of the account number only)
-For every other route "fields" is {}.
-
-"events" lists things in the capture that happen on a specific date and that a person might put on a calendar: appointments, deadlines, payment due dates, renewals, deliveries. Each is {"title": a few words that make sense on a calendar, "date": "YYYY-MM-DD", "time": "HH:MM" in 24-hour form, or "" when no time is given}.
-- Only dates on or after today. Work out relative dates such as "next Tuesday" from today's date.
-- Leave out the date a document was issued or printed, and anything already in the past.
-- Use [] when there is nothing of the kind. Never invent a date.
+For every other route "fields" is {}.$eventsRules
 """.trim()
         }
     }

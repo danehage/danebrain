@@ -53,4 +53,13 @@ class DatedItemTest {
         assertEquals(analysis.events, Analysis.parse(analysis.toJson()).events)
         assertEquals(emptyList<DatedItem>(), Analysis.parse("""{"title":"No events"}""").events)
     }
+
+    @Test fun thePromptOnlyAsksForEventsWhenACalendarIsOn() {
+        val routes = Routes.inboxOnly("Inbox")
+        val on = Analysis.systemPrompt(routes, "2026-11-18", wantEvents = true)
+        val off = Analysis.systemPrompt(routes, "2026-11-18", wantEvents = false)
+        assertEquals(true, on.contains("\"events\": array") && on.contains("Never invent a date."))
+        assertEquals(false, off.contains("events"))
+        assertEquals(true, off.contains("For every other route \"fields\" is {}."))
+    }
 }

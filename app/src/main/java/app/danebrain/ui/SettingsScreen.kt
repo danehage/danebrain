@@ -1,6 +1,8 @@
 package app.danebrain.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -11,6 +13,8 @@ import androidx.compose.material3.Button
 import android.widget.Toast
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -18,7 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -181,8 +187,9 @@ fun SettingsScreen(app: App) {
 }
 
 /**
- * Picks the phone calendar that dated items can be added to, and what to call it. Nothing is added
- * automatically: each item has its own switch on the review screen, off by default.
+ * The calendar feature, off unless the user turns it on. Turning it on lists the calendars already
+ * on the phone to pick from. Even then nothing is added automatically: each dated item has its own
+ * switch on the review screen, off by default.
  */
 @Composable
 private fun CalendarChooser(app: App) {
@@ -191,48 +198,69 @@ private fun CalendarChooser(app: App) {
     var chosenName by remember { mutableStateOf(app.settings.calendarName.takeIf { app.settings.calendarId >= 0 }.orEmpty()) }
     var label by remember { mutableStateOf(app.settings.calendarLabel.takeIf { it != Settings.DEFAULT_CALENDAR_LABEL }.orEmpty()) }
     var options by remember { mutableStateOf(emptyList<DeviceCalendar>()) }
+    var choosing by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
 
     fun list() {
         options = DeviceCalendars.writable(context)
+        choosing = options.isNotEmpty()
         message = if (options.isEmpty()) "No calendar on this phone can be added to." else null
     }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
         if (granted.values.all { it }) list() else message = "Calendar permission is needed to add events."
     }
-
-    Text(
-        "When a capture mentions a date, such as an appointment or a bill's due date, the review screen offers it with a switch. " +
-            "Only the ones you switch on are added, to the calendar chosen here.",
-        style = MaterialTheme.typography.bodySmall,
-        color = colors.onSurfaceVariant,
-    )
-    Spacer(Modifier.height(10.dp))
-    Text(
-        if (chosenName.isEmpty()) "No calendar chosen." else chosenName,
-        style = MaterialTheme.typography.bodyMedium,
-    )
-    Spacer(Modifier.height(8.dp))
-    OutlinedButton(onClick = {
+    fun pick() {
         if (DeviceCalendars.hasPermission(context)) list() else permission.launch(DeviceCalendars.PERMISSIONS)
-    }) { Text(if (chosenName.isEmpty()) "Choose a calendar" else "Change calendar") }
-    options.forEach { calendar ->
-        val line = if (calendar.account.isEmpty() || calendar.account == calendar.name) calendar.name else "${calendar.name} · ${calendar.account}"
-        TextButton(onClick = {
-            app.settings.calendarId = calendar.id
-            app.settings.calendarName = line
-            chosenName = line
-            options = emptyList()
-        }) { Text(line) }
+    }
+    fun turnOff() {
+        app.settings.calendarId = -1
+        app.settings.calendarName = ""
+        chosenName = ""
+        options = emptyList()
+        choosing = false
+        message = null
+    }
+
+    val on = chosenName.isNotEmpty() || choosing
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text("Offer dates for my calendar", style = MaterialTheme.typography.bodyLarge)
+            Spacer(Modifier.height(2.dp))
+            Text(
+                "When a capture mentions a date, such as an appointment or a bill's due date, the review screen " +
+                    "lists it with a switch. Only the ones you switch on are added. Leave this off if you do not want it.",
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant,
+            )
+        }
+        Spacer(Modifier.width(12.dp))
+        Switch(
+            checked = on,
+            onCheckedChange = { if (it) pick() else turnOff() },
+            colors = SwitchDefaults.colors(checkedTrackColor = Palette.Teal, checkedThumbColor = Color.White),
+        )
+    }
+    if (choosing) {
+        Spacer(Modifier.height(10.dp))
+        Eyebrow("Which calendar?")
+        options.forEach { calendar ->
+            val line = if (calendar.account.isEmpty() || calendar.account == calendar.name) calendar.name else "${calendar.name} · ${calendar.account}"
+            TextButton(onClick = {
+                app.settings.calendarId = calendar.id
+                app.settings.calendarName = line
+                chosenName = line
+                options = emptyList()
+                choosing = false
+            }) { Text(line) }
+        }
     }
     if (chosenName.isNotEmpty()) {
-        TextButton(onClick = {
-            app.settings.calendarId = -1
-            app.settings.calendarName = ""
-            chosenName = ""
-            options = emptyList()
-        }) { Text("Stop offering calendar events") }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(14.dp))
+        Eyebrow("Adds to")
+        Spacer(Modifier.height(6.dp))
+        Text(chosenName, style = MaterialTheme.typography.bodyMedium)
+        if (!choosing) TextButton(onClick = { pick() }) { Text("Change calendar") }
+        Spacer(Modifier.height(8.dp))
         LineField(
             label = "What to call it",
             value = label,
@@ -244,7 +272,8 @@ private fun CalendarChooser(app: App) {
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            "The switch will read \"Add to ${label.trim().ifEmpty { Settings.DEFAULT_CALENDAR_LABEL }}\".",
+            "The switch on the review screen will read \"Add to ${label.trim().ifEmpty { Settings.DEFAULT_CALENDAR_LABEL }}\". " +
+                "Name it after wherever the calendar shows up, such as a wall display.",
             style = MaterialTheme.typography.bodySmall,
             color = colors.onSurfaceVariant,
         )

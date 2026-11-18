@@ -98,7 +98,7 @@ Notes get lost between having a thought and sitting down at a computer. The app 
 - **Write.** A full-page editor. Save the text as it is with no model call, or let the model title and file it.
 - **Share.** Send text, links or images to it from any other app.
 - **Review.** Captures are read in the background; a notification tells you when one is ready, and tapping it opens the review.
-- **Calendar.** When a capture mentions a date, such as an appointment or a bill's due date, the review screen offers it with a switch that is off by default. The ones you switch on are added to a calendar on your phone, and from there to anything that calendar syncs with, such as a shared family display.
+- **Calendar (optional, off by default).** Turn it on in Settings and pick a calendar. Then, when a capture mentions a date, such as an appointment or a bill's due date, the review screen offers it with its own switch, also off by default. The ones you switch on are added to a calendar on your phone, and from there to anything that calendar syncs with, such as a shared family display.
 - **Search.** Instant offline full-text search over every note.
 - **Read.** Notes open in a built-in reader with headings, lists, tables, embedded scans and tappable links between notes. If the folder is an Obsidian vault, one tap opens the same note there.
 - **Ask.** Chat with a model that can search the vault and read notes. Answers cite the notes they came from.

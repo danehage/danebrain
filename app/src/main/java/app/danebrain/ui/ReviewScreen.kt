@@ -329,36 +329,27 @@ fun ReviewScreen(app: App, id: Long) {
                 }
             }
 
-            if (events.isNotEmpty()) {
+            if (calendarReady && events.isNotEmpty()) {
                 Spacer(Modifier.height(24.dp))
                 Eyebrow("Dates found")
                 Spacer(Modifier.height(4.dp))
-                if (!calendarReady) {
-                    Text(
-                        "Choose a calendar in Settings to be able to add these.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant,
-                    )
-                }
                 events.forEachIndexed { index, event ->
                     Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text(event.title, style = MaterialTheme.typography.bodyLarge)
                             Text(event.whenText(), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
                         }
-                        if (calendarReady) {
-                            Text(
-                                "Add to $calendarLabel",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = colors.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = 10.dp),
-                            )
-                            Switch(
-                                checked = chosenEvents[index] == true,
-                                onCheckedChange = { chosenEvents[index] = it },
-                                colors = SwitchDefaults.colors(checkedTrackColor = Palette.Teal, checkedThumbColor = Color.White),
-                            )
-                        }
+                        Text(
+                            "Add to $calendarLabel",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = colors.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                        )
+                        Switch(
+                            checked = chosenEvents[index] == true,
+                            onCheckedChange = { chosenEvents[index] = it },
+                            colors = SwitchDefaults.colors(checkedTrackColor = Palette.Teal, checkedThumbColor = Color.White),
+                        )
                     }
                     HorizontalDivider(color = colors.outlineVariant)
                 }
