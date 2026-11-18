@@ -50,3 +50,15 @@ class VaultLayoutTest {
         assertEquals(true, routes[0].datePrefix)
     }
 }
+
+class StarterVaultTest {
+    /** The starter vault ships a routes file; it has to stay readable by the app and match the vault's folders. */
+    @Test fun starterVaultRoutesParseAndPointAtRealFolders() {
+        val vault = java.io.File("../vault-starter")
+        val routes = Routes.parse(java.io.File(vault, "danebrain-routes.json").readText())
+        assertEquals("inbox", Routes.default(routes).key)
+        for (route in routes) {
+            assertEquals("folder for ${route.key}", true, java.io.File(vault, route.folder).isDirectory)
+        }
+    }
+}

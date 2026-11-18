@@ -186,10 +186,13 @@ Still open:
 - **Look.** Fixed light and dark themes in a warm paper palette (cream, ink, browns, teal accent), with Fraunces for titles. Settings has a Follow phone / Light / Dark choice; the default follows the phone. No wallpaper-based dynamic color.
 - **Text captures.** The model supplies only the title, tags and route. The note body is the typed text, unchanged.
 - **Inbox frontmatter** uses `date:` (matching existing inbox notes), not `captured:`.
-- **Routes.** The app bundles a sample `routes.json`. If the vault has a `danebrain-routes.json` at its top level, that table is used instead, so the folders a person files into are their own data and not part of the app. There is no `daily` route (the app cannot append to an existing daily note).
+- **Routes.** The route table is a `danebrain-routes.json` file at the top of the vault, so the folders a person files into are their own data and not part of the app. Without that file, everything goes to a single inbox folder the user picks, and the app can write a starter file from the vault's top-level folders. The repository's `vault-starter/` has a ready-made table. There is no `daily` route (the app cannot append to an existing daily note).
 - **Review screen** edits title, route, fields, tags, summary, transcription and the user's words. The filename is derived, not editable.
 - **Storage.** Plain `SQLiteOpenHelper` instead of Room. The search table is FTS5 with ranked results, falling back to FTS4 where FTS5 is missing.
 - **Index refresh** runs each time the app comes to the foreground, and on demand.
 - **Chat** history lives in memory and is lost when the app is closed.
 - **Route table** is not editable in the app; edit `danebrain-routes.json` in the vault.
+- **Image folder.** Scans go to `<attachments>/scans/<year>/`, where `<attachments>` is Obsidian's configured attachment folder when it names a fixed folder, else an existing top-level folder with "attachments" in its name, else `Attachments`.
+- **First run.** A setup screen walks through all-files access, choosing the vault (auto-detect, a folder picker or a typed path), the inbox folder and the API key, with a button that tests the key.
+- **Model endpoint.** The API address is a setting, so any OpenAI-compatible service can be used. The no-retention provider filter is only sent to OpenRouter.
 - **Not built:** per-vendor rules, an in-app note viewer (results open in Obsidian), embeddings.

@@ -1,0 +1,9 @@
+{
+  "inbox": { "folder": "00-Inbox", "type": "note", "status": "inbox", "datePrefix": true, "when": "quick thoughts, handwritten notes, and anything that does not clearly fit another route" },
+  "document": { "folder": "20-Areas/finances/documents", "type": "document", "status": "filed", "format": "document", "tags": ["document"], "hub": "finances", "hubReason": "it is a household paper record", "when": "an invoice, bill, receipt, statement or official letter kept as a record" },
+  "project": { "folder": "10-Projects", "type": "note", "status": "active", "when": "work on an active project with a defined outcome" },
+  "area": { "folder": "20-Areas", "type": "note", "status": "active", "when": "ongoing responsibilities such as family, health and home" },
+  "resource": { "folder": "30-Resources", "type": "reference", "status": "active", "when": "reference material on a topic, with no more specific route" },
+  "quotes": { "folder": "30-Resources/quotes", "type": "quote", "status": "keeper", "tags": ["quote"], "hub": "quotes", "hubReason": "it is part of the quotes collection", "when": "a quote worth keeping" },
+  "recipes": { "folder": "30-Resources/recipes", "type": "recipe", "status": "to-try", "tags": ["recipe"], "when": "recipes and cooking ideas" }
+}
