@@ -140,12 +140,15 @@ fun NoteScreen(app: App, path: String) {
                         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 32.dp),
                     ) {
                         item {
-                            Text(
-                                path.substringBeforeLast('/', ""),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontFamily = FontFamily.Monospace,
-                                color = colors.onSurfaceVariant,
-                            )
+                            val folder = path.substringBeforeLast('/', "")
+                            if (folder.isNotEmpty()) {
+                                Text(
+                                    folder,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontFamily = FontFamily.Monospace,
+                                    color = colors.onSurfaceVariant,
+                                )
+                            }
                             if (!hasTitle) {
                                 Spacer(Modifier.height(8.dp))
                                 Text(

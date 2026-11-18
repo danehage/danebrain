@@ -43,7 +43,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
@@ -212,14 +216,22 @@ fun VaultPicker(app: App, onChanged: () -> Unit = {}) {
     val colors = MaterialTheme.colorScheme
     val scope = rememberCoroutineScope()
     var vaultPath by remember { mutableStateOf(app.settings.vaultPath) }
+    // What is in the text field. It only becomes the vault when confirmed, so a half-typed path
+    // (which is often a real parent folder) is never indexed or filed into.
+    var typed by remember { mutableStateOf(app.settings.vaultPath) }
+    val focus = LocalFocusManager.current
     var candidates by remember { mutableStateOf(emptyList<File>()) }
     var message by remember { mutableStateOf<String?>(null) }
     val hasAccess = remember(ui.resumeTick) { app.vault.hasAccess() }
     val problem = remember(ui.resumeTick, vaultPath) { app.vault.problem() }
 
     fun choose(path: String) {
-        vaultPath = path
-        app.settings.vaultPath = path
+        val cleaned = path.trim()
+        // A different vault has different folders, so the inbox choice starts over.
+        if (cleaned != app.settings.vaultPath) app.settings.inboxFolder = ""
+        vaultPath = cleaned
+        typed = cleaned
+        app.settings.vaultPath = cleaned
         candidates = emptyList()
         app.loadRoutes()
         app.refreshIndex()
@@ -239,11 +251,22 @@ fun VaultPicker(app: App, onChanged: () -> Unit = {}) {
 
     LineField(
         label = "Vault folder",
-        value = vaultPath,
-        onValueChange = { choose(it) },
+        value = typed,
+        onValueChange = { typed = it },
         placeholder = "/storage/emulated/0/Documents/MyVault",
         textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = {
+            choose(typed)
+            focus.clearFocus()
+        }),
     )
+    if (typed.trim() != vaultPath) {
+        TextButton(onClick = {
+            choose(typed)
+            focus.clearFocus()
+        }) { Text("Use this folder") }
+    }
     Spacer(Modifier.height(10.dp))
     Text(
         problem ?: "Vault OK. ${if (ui.indexing) "Indexing" else ui.indexStatus}",

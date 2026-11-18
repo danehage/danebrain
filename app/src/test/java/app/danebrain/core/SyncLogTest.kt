@@ -27,4 +27,12 @@ class SyncLogTest {
         assertEquals(emptyList<String>(), SyncLog.waiting("not json", 0))
         assertEquals(listOf("a.md"), SyncLog.waiting(SyncLog.add("not json", "a.md", 5), 0))
     }
+
+    @Test
+    fun pruneDropsNotesThatAreNotInThisVault() {
+        var log = SyncLog.add("", "Notes/here.md", 300)
+        log = SyncLog.add(log, "Notes/other-vault.md", 400)
+        val pruned = SyncLog.prune(log, 200) { it == "Notes/here.md" }
+        assertEquals(listOf("Notes/here.md"), SyncLog.waiting(pruned, 0))
+    }
 }

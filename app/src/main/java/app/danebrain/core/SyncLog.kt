@@ -22,10 +22,13 @@ object SyncLog {
     fun waiting(log: String, obsidianLastOpen: Long): List<String> =
         parse(log).filter { it.writtenAt > obsidianLastOpen }.map { it.path }
 
-    /** Returns [log] without the entries Obsidian has already had a chance to sync. */
-    fun prune(log: String, obsidianLastOpen: Long): String {
+    /**
+     * Returns [log] without the entries Obsidian has already had a chance to sync, and without
+     * entries whose note is gone ([exists] false), such as notes written to a different vault.
+     */
+    fun prune(log: String, obsidianLastOpen: Long, exists: (String) -> Boolean = { true }): String {
         val out = JSONArray()
-        parse(log).filter { it.writtenAt > obsidianLastOpen }
+        parse(log).filter { it.writtenAt > obsidianLastOpen && exists(it.path) }
             .forEach { out.put(JSONObject().put("path", it.path).put("at", it.writtenAt)) }
         return out.toString()
     }

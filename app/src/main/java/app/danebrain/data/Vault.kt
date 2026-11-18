@@ -102,12 +102,14 @@ class Vault(private val settings: Settings) {
         // Without Obsidian there is no way to tell what has synced, so there is nothing to remind about.
         if (!isObsidianVault) return emptyList()
         val lastOpen = obsidianLastOpen()
-        val pruned = SyncLog.prune(settings.syncLog, lastOpen)
+        val r = root ?: return emptyList()
+        val pruned = SyncLog.prune(settings.syncLog, lastOpen) { File(r, it).isFile }
         if (pruned != settings.syncLog) settings.syncLog = pruned
         return SyncLog.waiting(pruned, lastOpen)
     }
 
     fun recordWrite(notePath: String) {
+        if (!isObsidianVault) return
         settings.syncLog = SyncLog.add(settings.syncLog, notePath, System.currentTimeMillis())
     }
 
