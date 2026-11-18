@@ -30,7 +30,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -55,6 +58,7 @@ import app.danebrain.core.NoteDraft
 import app.danebrain.core.Routes
 import app.danebrain.core.Text as TextUtil
 import app.danebrain.data.CaptureRepo
+import app.danebrain.data.DeviceCalendars
 import app.danebrain.data.ImageUtil
 import app.danebrain.work.AnalyzeWorker
 import kotlinx.coroutines.Dispatchers
@@ -114,6 +118,12 @@ fun ReviewScreen(app: App, id: Long) {
     var transcription by remember(analysisKey) { mutableStateOf(analysis?.transcription.orEmpty()) }
     var userText by remember(id) { mutableStateOf(capture.userText) }
 
+    // Which of the dated items the user has switched on. Everything starts off.
+    val events = analysis?.events.orEmpty()
+    val chosenEvents = remember(analysisKey) { mutableStateMapOf<Int, Boolean>() }
+    val calendarLabel = remember(ui.resumeTick) { app.settings.calendarLabel }
+    val calendarReady = remember(ui.resumeTick) { app.settings.calendarId >= 0 && DeviceCalendars.hasPermission(context) }
+
     var saving by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var confirmDiscard by remember { mutableStateOf(false) }
@@ -143,7 +153,17 @@ fun ReviewScreen(app: App, id: Long) {
             try {
                 val result = withContext(Dispatchers.IO) { app.writeToVault(draft, capture.pages.map { File(it) }) }
                 app.captures.delete(id)
-                Toast.makeText(context, "Saved to ${result.notePath}", Toast.LENGTH_LONG).show()
+                // The note is safely in the vault before anything touches the calendar.
+                val toAdd = events.filterIndexed { index, _ -> chosenEvents[index] == true }
+                val calendarNote = if (toAdd.isEmpty()) "" else try {
+                    withContext(Dispatchers.IO) {
+                        toAdd.forEach { DeviceCalendars.insert(context, app.settings.calendarId, it, "From the note \"${draft.title}\"") }
+                    }
+                    " Added ${toAdd.size} to $calendarLabel."
+                } catch (e: Exception) {
+                    " Could not add to $calendarLabel: ${e.message}"
+                }
+                Toast.makeText(context, "Saved to ${result.notePath}.$calendarNote", Toast.LENGTH_LONG).show()
                 app.refreshIndex()
                 ui.reviewId = null
             } catch (e: Exception) {
@@ -306,6 +326,41 @@ fun ReviewScreen(app: App, id: Long) {
                         textStyle = MaterialTheme.typography.bodyMedium,
                         maxHeight = 360.dp,
                     )
+                }
+            }
+
+            if (events.isNotEmpty()) {
+                Spacer(Modifier.height(24.dp))
+                Eyebrow("Dates found")
+                Spacer(Modifier.height(4.dp))
+                if (!calendarReady) {
+                    Text(
+                        "Choose a calendar in Settings to be able to add these.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant,
+                    )
+                }
+                events.forEachIndexed { index, event ->
+                    Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(event.title, style = MaterialTheme.typography.bodyLarge)
+                            Text(event.whenText(), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                        }
+                        if (calendarReady) {
+                            Text(
+                                "Add to $calendarLabel",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = colors.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 10.dp),
+                            )
+                            Switch(
+                                checked = chosenEvents[index] == true,
+                                onCheckedChange = { chosenEvents[index] = it },
+                                colors = SwitchDefaults.colors(checkedTrackColor = Palette.Teal, checkedThumbColor = Color.White),
+                            )
+                        }
+                    }
+                    HorizontalDivider(color = colors.outlineVariant)
                 }
             }
 

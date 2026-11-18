@@ -66,6 +66,21 @@ class Settings(context: Context) {
         get() = prefs.getBoolean("asked_to_notify", false)
         set(v) = prefs.edit().putBoolean("asked_to_notify", v).apply()
 
+    /** Id of the phone calendar that dated items can be added to, or -1 when none is chosen. */
+    var calendarId: Long
+        get() = prefs.getLong("calendar_id", -1)
+        set(v) = prefs.edit().putLong("calendar_id", v).apply()
+
+    /** The chosen calendar's name and account, for display. */
+    var calendarName: String
+        get() = prefs.getString("calendar_name", "") ?: ""
+        set(v) = prefs.edit().putString("calendar_name", v).apply()
+
+    /** What the user calls the place events go, shown as "Add to <label>". */
+    var calendarLabel: String
+        get() = prefs.getString("calendar_label", "")?.trim()?.ifEmpty { DEFAULT_CALENDAR_LABEL } ?: DEFAULT_CALENDAR_LABEL
+        set(v) = prefs.edit().putString("calendar_label", v.trim()).apply()
+
     var apiKey: String
         get() {
             val stored = prefs.getString("api_key_enc", null) ?: return ""
@@ -112,6 +127,7 @@ class Settings(context: Context) {
         const val DEFAULT_VISION_MODEL = "anthropic/claude-haiku-5.5"
         const val DEFAULT_CHAT_MODEL = "anthropic/claude-sonnet-5.5"
         const val DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
+        const val DEFAULT_CALENDAR_LABEL = "calendar"
         const val THEME_SYSTEM = "system"
         const val THEME_LIGHT = "light"
         const val THEME_DARK = "dark"

@@ -98,6 +98,7 @@ Notes get lost between having a thought and sitting down at a computer. The app 
 - **Write.** A full-page editor. Save the text as it is with no model call, or let the model title and file it.
 - **Share.** Send text, links or images to it from any other app.
 - **Review.** Captures are read in the background; a notification tells you when one is ready, and tapping it opens the review.
+- **Calendar.** When a capture mentions a date, such as an appointment or a bill's due date, the review screen offers it with a switch that is off by default. The ones you switch on are added to a calendar on your phone, and from there to anything that calendar syncs with, such as a shared family display.
 - **Search.** Instant offline full-text search over every note.
 - **Read.** Notes open in a built-in reader with headings, lists, tables, embedded scans and tappable links between notes. If the folder is an Obsidian vault, one tap opens the same note there.
 - **Ask.** Chat with a model that can search the vault and read notes. Answers cite the notes they came from.
@@ -154,6 +155,7 @@ The route named `inbox` is the fallback. Scans go to `scans/<year>/` inside your
 - Scans and typed text are sent to the model you choose when you ask for filing. Ask sends your question, `AGENTS.md`, and the notes the model chooses to read.
 - On OpenRouter, requests are limited to providers that do not retain or train on prompts. With a custom API address, what is kept is up to that service.
 - Dictation uses the phone's speech recognizer, on-device where the phone supports it.
+- Calendar events are written to a calendar already on the phone, through Android itself. The app does not sign in to any calendar service.
 - The API key is encrypted with a key held in the Android Keystore.
 
 ### Limits

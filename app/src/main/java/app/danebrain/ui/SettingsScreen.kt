@@ -23,6 +23,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import app.danebrain.App
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import app.danebrain.data.DeviceCalendar
+import app.danebrain.data.DeviceCalendars
 import app.danebrain.data.Settings
 
 @Composable
@@ -107,6 +111,11 @@ fun SettingsScreen(app: App) {
         }
 
         Spacer(Modifier.height(32.dp))
+        Text("Calendar", style = MaterialTheme.typography.titleLarge)
+        Spacer(Modifier.height(8.dp))
+        CalendarChooser(app)
+
+        Spacer(Modifier.height(32.dp))
         Text("Model", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(14.dp))
         LineField(
@@ -168,5 +177,80 @@ fun SettingsScreen(app: App) {
 
         Spacer(Modifier.height(24.dp))
         TextButton(onClick = { ui.setup = true }) { Text("Run setup again") }
+    }
+}
+
+/**
+ * Picks the phone calendar that dated items can be added to, and what to call it. Nothing is added
+ * automatically: each item has its own switch on the review screen, off by default.
+ */
+@Composable
+private fun CalendarChooser(app: App) {
+    val context = LocalContext.current
+    val colors = MaterialTheme.colorScheme
+    var chosenName by remember { mutableStateOf(app.settings.calendarName.takeIf { app.settings.calendarId >= 0 }.orEmpty()) }
+    var label by remember { mutableStateOf(app.settings.calendarLabel.takeIf { it != Settings.DEFAULT_CALENDAR_LABEL }.orEmpty()) }
+    var options by remember { mutableStateOf(emptyList<DeviceCalendar>()) }
+    var message by remember { mutableStateOf<String?>(null) }
+
+    fun list() {
+        options = DeviceCalendars.writable(context)
+        message = if (options.isEmpty()) "No calendar on this phone can be added to." else null
+    }
+    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
+        if (granted.values.all { it }) list() else message = "Calendar permission is needed to add events."
+    }
+
+    Text(
+        "When a capture mentions a date, such as an appointment or a bill's due date, the review screen offers it with a switch. " +
+            "Only the ones you switch on are added, to the calendar chosen here.",
+        style = MaterialTheme.typography.bodySmall,
+        color = colors.onSurfaceVariant,
+    )
+    Spacer(Modifier.height(10.dp))
+    Text(
+        if (chosenName.isEmpty()) "No calendar chosen." else chosenName,
+        style = MaterialTheme.typography.bodyMedium,
+    )
+    Spacer(Modifier.height(8.dp))
+    OutlinedButton(onClick = {
+        if (DeviceCalendars.hasPermission(context)) list() else permission.launch(DeviceCalendars.PERMISSIONS)
+    }) { Text(if (chosenName.isEmpty()) "Choose a calendar" else "Change calendar") }
+    options.forEach { calendar ->
+        val line = if (calendar.account.isEmpty() || calendar.account == calendar.name) calendar.name else "${calendar.name} · ${calendar.account}"
+        TextButton(onClick = {
+            app.settings.calendarId = calendar.id
+            app.settings.calendarName = line
+            chosenName = line
+            options = emptyList()
+        }) { Text(line) }
+    }
+    if (chosenName.isNotEmpty()) {
+        TextButton(onClick = {
+            app.settings.calendarId = -1
+            app.settings.calendarName = ""
+            chosenName = ""
+            options = emptyList()
+        }) { Text("Stop offering calendar events") }
+        Spacer(Modifier.height(12.dp))
+        LineField(
+            label = "What to call it",
+            value = label,
+            onValueChange = {
+                label = it
+                app.settings.calendarLabel = it
+            },
+            placeholder = "calendar",
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "The switch will read \"Add to ${label.trim().ifEmpty { Settings.DEFAULT_CALENDAR_LABEL }}\".",
+            style = MaterialTheme.typography.bodySmall,
+            color = colors.onSurfaceVariant,
+        )
+    }
+    message?.let {
+        Spacer(Modifier.height(6.dp))
+        Text(it, style = MaterialTheme.typography.bodySmall)
     }
 }

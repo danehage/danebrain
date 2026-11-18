@@ -198,5 +198,6 @@ Still open:
 - **Obsidian is optional.** Any folder can be chosen as the vault; the `.obsidian` check is gone. The sync reminder and the "Open in Obsidian" button appear only when the folder has a `.obsidian` folder.
 - **Notifications.** When background analysis finishes while the app is not on screen, a notification says the capture is ready (or needs filing by hand) and opens its review. Permission is asked for the first time something is queued.
 - **Sync Obsidian shortcut.** Settings can pin a home-screen shortcut that opens `obsidian://open?vault=<name>`, since Obsidian Sync only runs while Obsidian is open.
+- **Calendar.** The analysis also returns `events`: dated items found in the capture. The review screen lists them, each with a switch that starts off; on filing, the switched-on ones are inserted into a phone calendar chosen in Settings (`CalendarContract`, no account sign-in). The switch's wording is a setting, so it can read "Add to Skylight" for a calendar that feeds a wall display.
 - **Note reader.** Search results and chat citations open in a built-in read-only Markdown reader (`core/Markdown.kt`, `ui/NoteScreen.kt`) that follows wikilinks and shows embedded images; a button opens the note in Obsidian.
 - **Not built:** per-vendor rules, embeddings.

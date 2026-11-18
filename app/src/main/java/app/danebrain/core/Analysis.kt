@@ -11,6 +11,8 @@ data class Analysis(
     val transcription: String,
     val tags: List<String>,
     val fields: Map<String, String>,
+    /** Dated things found in the capture, offered to the user for their calendar. */
+    val events: List<DatedItem> = emptyList(),
 ) {
     fun toJson(): String {
         val o = JSONObject()
@@ -22,6 +24,7 @@ data class Analysis(
         val f = JSONObject()
         fields.forEach { (k, v) -> f.put(k, v) }
         o.put("fields", f)
+        o.put("events", DatedItem.toJson(events))
         return o.toString()
     }
 
@@ -68,6 +71,7 @@ data class Analysis(
                 transcription = o.optString("transcription").trim(),
                 tags = tags.take(6),
                 fields = fields,
+                events = DatedItem.parse(o.optJSONArray("events")),
             )
         }
 
@@ -84,7 +88,8 @@ Reply with one JSON object and nothing else:
   "summary": one or two plain sentences,
   "transcription": for scans, the full text of the pages in reading order as markdown; "" when there are no pages,
   "tags": up to 4 lowercase kebab-case topic tags,
-  "fields": object, see below
+  "fields": object, see below,
+  "events": array, see below
 }
 
 Routes:
@@ -101,6 +106,11 @@ Rules:
 "fields" for route "document":
   vendor, doc_kind (invoice, bill, receipt, statement, letter or other), amount (total due or total paid, digits only), currency (ISO code), doc_date, due_date, account_last4 (last four characters of the account number only)
 For every other route "fields" is {}.
+
+"events" lists things in the capture that happen on a specific date and that a person might put on a calendar: appointments, deadlines, payment due dates, renewals, deliveries. Each is {"title": a few words that make sense on a calendar, "date": "YYYY-MM-DD", "time": "HH:MM" in 24-hour form, or "" when no time is given}.
+- Only dates on or after today. Work out relative dates such as "next Tuesday" from today's date.
+- Leave out the date a document was issued or printed, and anything already in the past.
+- Use [] when there is nothing of the kind. Never invent a date.
 """.trim()
         }
     }
